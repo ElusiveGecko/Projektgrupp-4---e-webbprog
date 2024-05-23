@@ -61,7 +61,7 @@ if(isset($_SESSION['userID']) && isset($_SESSION['username'])) {
                         <input type="password" class="module-input" id="register-password-conf" name="password-confirm" placeholder="Confirm your password">
                         <p>Error Message</p>
                     </div>
-                    <div class="g-recaptcha" data-sitekey="6LcZyuMpAAAAADWQg9RTL8u7OUc_BGQuZBN6CdsR"></div>
+                    <div class="g-recaptcha" data-sitekey="6LcETuYpAAAAAJQSYwpU2nkdbGc_8hTF740s3QYu"></div>
                     <input type="submit" class="register-input-btn" value="Sign Up">
                 </form>
             </div>
