@@ -1,7 +1,7 @@
 <?php
+header('Content-Type: application/json'); // Ensure the response is JSON
 function checkUsernameAvailability($username) {
-    $db = new SQLite3("grupp.db");
-
+    $db = new SQLite3("../grupp.db");
     $usernameQuery = "SELECT * FROM Users WHERE username = :username";
     $stmt = $db->prepare($usernameQuery);
     $stmt->bindValue(':username', $username);

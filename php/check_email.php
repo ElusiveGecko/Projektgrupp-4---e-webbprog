@@ -1,7 +1,7 @@
 <?php
+header('Content-Type: application/json'); // Ensure the response is JSON
 function checkEmailAvailability($email) {
-    $db = new SQLite3("grupp.db");
-
+    $db = new SQLite3("../grupp.db");
     $emailQuery = "SELECT * FROM Users WHERE email = :email";
     $stmt = $db->prepare($emailQuery);
     $stmt->bindValue(':email', $email);

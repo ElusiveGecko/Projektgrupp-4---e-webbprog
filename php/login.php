@@ -1,11 +1,11 @@
 <?php
 session_start();
+header('Content-Type: application/json'); // Ensure the response is JSON
 $username = $email = $password = "";
-$db = new SQLite3("grupp.db");
+$db = new SQLite3("../grupp.db");
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $username = $_POST["username"];
     $password = $_POST["password"];
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
     $searchResult = $db->prepare("SELECT * FROM Users WHERE username = :username");
     $searchResult->bindValue(':username', $username, SQLITE3_TEXT);
@@ -13,7 +13,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($row = $result->fetchArray(SQLITE3_ASSOC)) {
         $stored_hashed_password = $row['password'];
-
         if (password_verify($password, $stored_hashed_password)) {
             $_SESSION['username'] = $row['username'];
             $_SESSION['userID'] = $row['userID'];
