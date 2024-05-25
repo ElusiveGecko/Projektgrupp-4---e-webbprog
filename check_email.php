@@ -1,8 +1,6 @@
 <?php
-$db = new SQLite3("grupp.db");
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST["email"];
+function checkEmailAvailability($email) {
+    $db = new SQLite3("grupp.db");
 
     $emailQuery = "SELECT * FROM Users WHERE email = :email";
     $stmt = $db->prepare($emailQuery);
@@ -10,13 +8,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->execute();
 
     if ($result->fetchArray(SQLITE3_ASSOC)) {
-        echo json_encode(["status" => "error", "message" => "Email already exists"]);
+        $db->close();
+        return ["status" => "error", "message" => "Email already has an account"];
     } else if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(["status" => "error", "message" => "Invalid email"]);
+        $db->close();
+        return ["status" => "error", "message" => "Invalid email"];
     } else {
-        echo json_encode(["status" => "success", "message" => "Email available"]);
+        $db->close();
+        return ["status" => "success", "message" => "Email available"];
     }
+}
 
-    $db->close();
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $email = $_POST["email"];
+    echo json_encode(checkEmailAvailability($email));
 }
 ?>

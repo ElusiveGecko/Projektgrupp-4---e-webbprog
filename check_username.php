@@ -1,8 +1,6 @@
 <?php
-$db = new SQLite3("grupp.db");
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = $_POST["username"];
+function checkUsernameAvailability($username) {
+    $db = new SQLite3("grupp.db");
 
     $usernameQuery = "SELECT * FROM Users WHERE username = :username";
     $stmt = $db->prepare($usernameQuery);
@@ -10,12 +8,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = $stmt->execute();
 
     if ($result->fetchArray(SQLITE3_ASSOC)) {
-        echo json_encode(["status" => "error", "message" => "Username already exists"]);
+        $db->close();
+        return ["status" => "error", "message" => "Username already exists"];
+    } else if (!preg_match("/.{4,}$/", $username)) {
+        $db->close();
+        return ["status" => "error", "message" => "Username must contain at least 4 characters"];
     } else {
-        echo json_encode(["status" => "success", "message" => "Username available"]);
+        $db->close();
+        return ["status" => "success", "message" => "Username available"];
     }
+}
 
-    $db->close();
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $username = strtolower($_POST["username"]);
+    echo json_encode(checkUsernameAvailability($username));
     exit();
 }
 ?>

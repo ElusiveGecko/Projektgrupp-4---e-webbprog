@@ -8,17 +8,19 @@ if (!isset($_SESSION['userID'])) {
 $db = new SQLite3("grupp.db");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action'])) {
-    if ($_POST['action'] == 'publish' && isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category'])) {
+    if ($_POST['action'] == 'publish' && isset($_POST['title']) && isset($_POST['description']) && isset($_POST['category']) && isset($_POST['description'])) {
         $title = htmlspecialchars($_POST['title']);
         $description = htmlspecialchars($_POST['description']);
         $categoryID = intval($_POST['category']);
+        $address = htmlspecialchars($_POST['address']);
         $userID = $_SESSION['userID'];
 
-        $stmt = $db->prepare("INSERT INTO Adverts (userID, title, description, categoryID) VALUES (:userID, :title, :description, :categoryID)");
+        $stmt = $db->prepare("INSERT INTO Adverts (userID, title, description, categoryID,address) VALUES (:userID, :title, :description, :categoryID, :address)");
         $stmt->bindValue(':userID', $userID, SQLITE3_INTEGER);
         $stmt->bindValue(':title', $title, SQLITE3_TEXT);
         $stmt->bindValue(':description', $description, SQLITE3_TEXT);
         $stmt->bindValue(':categoryID', $categoryID, SQLITE3_INTEGER);
+        $stmt->bindValue(':address', $address, SQLITE3_TEXT);
         $stmt->execute();
     }
 
@@ -56,6 +58,14 @@ $categories = $db->query("SELECT * FROM Categories");
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
+    <div class="header-container">
+        <nav class="header">
+            <h1 id="header-logo">Blocket-ish</h1>
+            <div class="header-btns">
+            <a href="logout.php" class="header-link"><div class="header-btns"><button class="login-module-btn" id="header-btns">Logout</button></div></a>
+            </div>
+        </nav>
+    </div>
     <div class="container">
         <h1>Welcome, <?php echo $_SESSION['username']; ?>!</h1>
         <a href="logout.php" class="log-out-btn">Sign Out</a>
@@ -63,6 +73,9 @@ $categories = $db->query("SELECT * FROM Categories");
         <form id="advert-form">
             <div class="form-group">
                 <input type="text" name="title" placeholder="Advert Title" required>
+            </div>
+            <div class="form-group">
+                <input type="text" id="address-input" name="address" placeholder="Address" required>
             </div>
             <div class="form-group">
                 <textarea name="description" placeholder="Advert Description" required></textarea>
@@ -91,6 +104,15 @@ $categories = $db->query("SELECT * FROM Categories");
         </div>
         <div class="adverts" id="adverts"></div>
     </div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places"></script> // Replace YOUR_API_KEY with your Google Maps API key
+    <script>
+        function initializeAutocomplete() 
+        {
+            var input = document.getElementById('address-input');
+            var autocomplete = new google.maps.places.Autocomplete(input);
+        }
+        window.onload = initializeAutocomplete;
+    </script>
 
     <script>
         $(document).ready(function() {
@@ -103,7 +125,7 @@ $categories = $db->query("SELECT * FROM Categories");
                             <div class="advert">
                                 <h3>${advert.title}</h3>
                                 <p>${advert.description}</p>
-                                <small>Posted by: ${advert.username} in ${advert.categoryName} on ${advert.created_at}</small>
+                                <small>Posted by: ${advert.username} (${advert.address})  in ${advert.categoryName} on ${advert.created_at}</small>
                             </div>
                         `;
                     });

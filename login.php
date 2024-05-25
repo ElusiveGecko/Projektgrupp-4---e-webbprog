@@ -11,30 +11,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $searchResult->bindValue(':username', $username, SQLITE3_TEXT);
     $result = $searchResult->execute();
 
-    // Kollar om användarnamnet finns i databasen
     if ($row = $result->fetchArray(SQLITE3_ASSOC)) {
         $stored_hashed_password = $row['password'];
 
-        // Verifierar passwordet
         if (password_verify($password, $stored_hashed_password)) {
             $_SESSION['username'] = $row['username'];
             $_SESSION['userID'] = $row['userID'];
-            $_SESSION['email'] = $row['email'];
-            header("Location: main.php");
-            exit();
-
-
+            echo json_encode(array("status" => "success"));
         } else {
-            echo "<script>alert('Password does not match username. Redirecting...');</script>";
-            echo "<script>setTimeout(function() { window.location.href = 'index.php'; }, 2000);</script>";
-            exit();
+            echo json_encode(array("status" => "error", "type" => "password", "message" => "Password does not match username"));
         }
     } else {
-        echo "<script>alert('Username does not exist. Redirecting...');</script>";
-        echo "<script>setTimeout(function() { window.location.href = 'index.php'; }, 2000);</script>";
-        exit();
+        echo json_encode(array("status" => "error", "type" => "username", "message" => "Username does not exist"));
     }
     $searchResult->close();
     $db->close();
+    exit();
 }
 ?>
